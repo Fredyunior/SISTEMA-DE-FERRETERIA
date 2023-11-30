@@ -1,0 +1,77 @@
+-- Crear la base de datos
+CREATE DATABASE Ferreteria;
+
+-- Usar la base de datos
+USE Ferreteria;
+
+-- Tabla Persona
+CREATE TABLE Persona (
+    id_persona INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    apellido VARCHAR(100) NOT NULL,
+    direccion VARCHAR(255),
+    telefono VARCHAR(20)
+);
+
+-- Tabla Cliente
+CREATE TABLE Cliente (
+    id_cliente INT AUTO_INCREMENT PRIMARY KEY,
+    id_persona INT NOT NULL,
+    FOREIGN KEY (id_persona) REFERENCES Persona(id_persona)
+);
+
+-- Tabla Vendedor
+CREATE TABLE Vendedor (
+    id_vendedor INT AUTO_INCREMENT PRIMARY KEY,
+    id_persona INT NOT NULL,
+    FOREIGN KEY (id_persona) REFERENCES Persona(id_persona)
+);
+
+-- Tabla Proveedor
+CREATE TABLE Proveedor (
+    id_proveedor INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_empresa VARCHAR(100) NOT NULL,
+    direccion VARCHAR(255),
+    telefono VARCHAR(20),
+);
+
+-- Tabla Producto
+CREATE TABLE Producto (
+    id_producto INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    descripcion TEXT,
+    precio DECIMAL(10, 2) NOT NULL,
+    id_proveedor INT,
+    id_categoria INT,
+    FOREIGN KEY (id_proveedor) REFERENCES Proveedor(id_proveedor),
+    FOREIGN KEY (id_categoria) REFERENCES Categoria(id_categoria)
+);
+
+-- Tabla Venta
+CREATE TABLE Venta (
+    id_venta INT AUTO_INCREMENT PRIMARY KEY,
+    id_cliente INT,
+    id_vendedor INT,
+    fecha_venta DATE NOT NULL,
+    total_venta DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (id_cliente) REFERENCES Cliente(id_cliente),
+    FOREIGN KEY (id_vendedor) REFERENCES Vendedor(id_vendedor)
+);
+
+-- Tabla DetalleVenta
+CREATE TABLE DetalleVenta (
+    id_detalle_venta INT AUTO_INCREMENT PRIMARY KEY,
+    id_venta INT NOT NULL,
+    id_producto INT NOT NULL,
+    cantidad INT NOT NULL,
+    precio_unitario DECIMAL(10, 2) NOT NULL,
+    total_producto DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (id_venta) REFERENCES Venta(id_venta),
+    FOREIGN KEY (id_producto) REFERENCES Producto(id_producto)
+);
+
+-- Tabla Categoria
+CREATE TABLE Categoria (
+    id_categoria INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_categoria VARCHAR(100) NOT NULL
+);
