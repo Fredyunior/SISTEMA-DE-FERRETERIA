@@ -1,0 +1,186 @@
+-- DATOS INSERTADOS EN TABLAS --
+
+-- Insertar datos en la tabla Persona
+INSERT INTO Persona (nombre, apellido, direccion, telefono) VALUES
+('Freddy', 'Avila', 'B/pompeya', '70021849');
+
+select * from persona;
+DELETE FROM Persona;
+TRUNCATE TABLE Persona;
+ALTER TABLE Persona AUTO_INCREMENT = 1;
+
+
+-- Insertar datos en la tabla Categoria
+INSERT INTO Categoria (Id_categoria, nombre_categoria) VALUES
+('1','Herramientas de trabajo'),
+('2','Material de Construccion');
+
+INSERT INTO proveedor (Id_proveedor, nombre_empresa, direccion, telefono) VALUES
+('60','Herramientas Tolsen','Av. Alemana','70021849'),
+('50','Fancesa','Los Tajibos','60027223');
+
+-- Insertar datos en la tabla Producto
+INSERT INTO producto (id_producto, nombre, descripcion, precio, id_proveedor, id_categoria) VALUES
+('21','martillo', 'acero','80','60','1'),
+('22','cemento Fancesa', 'Cemento','45','50','2');
+
+select * from persona;
+
+
+
+
+-- PEOCEDIMIENTOS ALMACENADOS -- 
+-- Creación del Procedimientos almacenados que pueden (insertar, eliminar, modificar y actualizar).
+
+-- Procedimiento Almacenado para Insertar datos
+DELIMITER //
+
+CREATE PROCEDURE InsertarPersona(
+    IN p_nombre VARCHAR(50),
+    IN p_apellido VARCHAR(50),
+    IN p_direccion VARCHAR(100),
+    IN p_telefono VARCHAR(15)
+)
+BEGIN
+    INSERT INTO Persona (nombre, apellido, direccion, telefono)
+    VALUES (p_nombre, p_apellido, p_direccion, p_telefono);
+END //
+
+DELIMITER ;
+
+-- Procedimiento Almacenado para Eliminar
+
+DELIMITER //
+
+CREATE PROCEDURE ModificarPersona(
+    IN p_id_persona INT,
+    IN p_nombre VARCHAR(50),
+    IN p_apellido VARCHAR(50),
+    IN p_direccion VARCHAR(100),
+    IN p_telefono VARCHAR(15)
+)
+BEGIN
+    IF p_nombre IS NOT NULL THEN
+        UPDATE Persona
+        SET nombre = p_nombre
+        WHERE id_persona = p_id_persona;
+    END IF;
+
+    IF p_apellido IS NOT NULL THEN
+        UPDATE Persona
+        SET apellido = p_apellido
+        WHERE id_persona = p_id_persona;
+    END IF;
+
+    IF p_direccion IS NOT NULL THEN
+        UPDATE Persona
+        SET direccion = p_direccion
+        WHERE id_persona = p_id_persona;
+    END IF;
+
+    IF p_telefono IS NOT NULL THEN
+        UPDATE Persona
+        SET telefono = p_telefono
+        WHERE id_persona = p_id_persona;
+    END IF;
+END //
+
+DELIMITER ;
+
+-- Procedimiento Almacenado para Eliminar Datos
+
+DELIMITER //
+
+CREATE PROCEDURE EliminarPersona(
+    IN p_id_persona INT
+)
+BEGIN
+    DELETE FROM Persona WHERE id_persona = p_id_persona;
+END //
+
+DELIMITER ;
+
+
+-- Procedimiento Almacenado para Actualizar Datos
+
+DELIMITER //
+
+CREATE PROCEDURE GestionarPersona(
+    IN p_id_persona INT,
+    IN p_nombre VARCHAR(50),
+    IN p_apellido VARCHAR(50),
+    IN p_direccion VARCHAR(100),
+    IN p_telefono VARCHAR(15),
+    IN p_operacion VARCHAR(10) -- Puede ser 'insertar', 'actualizar', 'eliminar' o 'modificar'
+)
+BEGIN
+    IF p_operacion = 'insertar' THEN
+        INSERT INTO Persona (nombre, apellido, direccion, telefono)
+        VALUES (p_nombre, p_apellido, p_direccion, p_telefono);
+    ELSEIF p_operacion = 'actualizar' THEN
+        UPDATE Persona
+        SET nombre = p_nombre,
+            apellido = p_apellido,
+            direccion = p_direccion,
+            telefono = p_telefono
+        WHERE id_persona = p_id_persona;
+    ELSEIF p_operacion = 'eliminar' THEN
+        DELETE FROM Persona WHERE id_persona = p_id_persona;
+    ELSEIF p_operacion = 'modificar' THEN
+    
+    ELSE
+        -- Manejo de operación no válida
+        SELECT 'Se han aplicado cambios correctamente';
+    END IF;
+
+DELIMITER ;
+
+
+
+ -- ALTER TABLE Persona AUTO_INCREMENT = 1; -- para restablecer el contador 
+-- DROP PROCEDURE IF EXISTS;
+select * from persona;
+-- DELETE FROM Persona;
+-- Llamada al procedimiento para insertar un nuevo registro
+CALL InsertarPersona('coco', 'paco', 'B/Autonomia', '60027223');
+CALL InsertarPersona('norelys', 'avila', 'B/los pinos', '65890365');
+-- Llamada al procedimiento para eliminar un registro
+CALL Eliminarpersona(9);
+CALL ActualizarPersona(12,'Freddy', 'Avila', 'B/pompeya', '70021849');
+
+
+
+
+-- TRIGGER --
+-- Creación del trigger para Corregir el formato de numero de telefono
+DELIMITER //
+
+CREATE TRIGGER antes_insertar_telefono
+BEFORE INSERT ON Persona
+FOR EACH ROW
+BEGIN
+    IF NEW.telefono REGEXP '[^0-9-]' THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error: El formato del número de teléfono no es válido. Debe contener solo números y guiones (-).';
+    END IF;
+END;
+
+//
+
+DELIMITER ;
+
+
+
+-- VISTAS --
+-- Creación de las Vistas para que me ordene una cierta cantidad de datos en mi tabla entre producto y categoria
+
+CREATE VIEW VistaProductoCategoria AS
+SELECT 
+	P.id_producto, P.nombre AS nombre_producto, P.descripcion, P.precio, 
+    C.id_categoria, C.nombre_categoria
+FROM 
+	Producto P
+INNER JOIN Categoria C ON P.id_categoria = C.id_categoria;
+
+
+-- select * from VistaProductoCategoria;
